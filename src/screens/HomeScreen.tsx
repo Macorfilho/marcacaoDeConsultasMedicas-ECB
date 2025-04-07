@@ -97,7 +97,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <Container>
-      <HeaderContainer>
+      <HeaderContainer style={{ paddingTop: 70 }}>
         <HeaderTitle>Minhas Consultas</HeaderTitle>
       </HeaderContainer>
 
