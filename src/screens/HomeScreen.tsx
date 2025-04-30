@@ -70,7 +70,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const renderAppointment = ({ item }: { item: Appointment }) => {
     const doctor = getDoctorInfo(item.doctorId);
-
+    
     return (
       <AppointmentCard>
         <DoctorImage source={{ uri: doctor?.image || 'https://via.placeholder.com/100' }} />
@@ -97,7 +97,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <Container>
-      <HeaderContainer style={{ paddingTop: 70 }}>
+      <HeaderContainer>
         <HeaderTitle>Minhas Consultas</HeaderTitle>
       </HeaderContainer>
 
