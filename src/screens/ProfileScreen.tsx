@@ -4,6 +4,7 @@ import { Button } from 'react-native-elements';
 import { HeaderContainer, HeaderTitle } from '../components/Header';
 import theme from '../styles/theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { getSafeAreaTopMargin } from '../styles/globalStyles';
 
 type RootStackParamList = {
   Home: undefined;

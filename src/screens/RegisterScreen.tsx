@@ -7,19 +7,21 @@ import { ViewStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import { getSafeAreaTopMargin } from '../styles/globalStyles';
 
 type RegisterScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Register'>;
 };
 
 const RegisterScreen: React.FC = () => {
-  const { register } = useAuth();
+  const { signUp } = useAuth();
   const navigation = useNavigation<RegisterScreenProps['navigation']>();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [userType, setUserType] = useState<'PACIENTE' | 'ADMIN'>('PACIENTE');
 
   const handleRegister = async () => {
     try {
@@ -31,12 +33,13 @@ const RegisterScreen: React.FC = () => {
         return;
       }
 
-      await register({
+      await signUp({
         name,
         email,
         password,
+        userType, // NOVO - Envia tipo de usuário
       });
-
+      
       // Após o registro bem-sucedido, navega para o login
       navigation.navigate('Login');
     } catch (err) {
@@ -76,6 +79,28 @@ const RegisterScreen: React.FC = () => {
       />
 
       {error ? <ErrorText>{error}</ErrorText> : null}
+
+      {/* ADICIONAR na JSX antes dos botões */}
+      <SectionTitle>Tipo de Usuário</SectionTitle>
+      <UserTypeContainer>
+        <UserTypeButton 
+          selected={userType === 'PACIENTE'}
+          onPress={() => setUserType('PACIENTE')}
+        >
+          <UserTypeText selected={userType === 'PACIENTE'}>
+            Paciente
+          </UserTypeText>
+        </UserTypeButton>
+        
+        <UserTypeButton 
+          selected={userType === 'ADMIN'}
+          onPress={() => setUserType('ADMIN')}
+        >
+          <UserTypeText selected={userType === 'ADMIN'}>
+            Administrador
+          </UserTypeText>
+        </UserTypeButton>
+      </UserTypeContainer>
 
       <Button
         title="Cadastrar"
@@ -120,6 +145,7 @@ const styles = {
 const Container = styled.View`
   flex: 1;
   padding: 20px;
+  padding-top: ${getSafeAreaTopMargin() + 20}px;
   justify-content: center;
   background-color: ${theme.colors.background};
 `;
@@ -136,6 +162,36 @@ const ErrorText = styled.Text`
   color: ${theme.colors.error};
   text-align: center;
   margin-bottom: 10px;
+`;
+
+// NOVOS COMPONENTES PARA SELEÇÃO DE TIPO DE USUÁRIO
+const SectionTitle = styled.Text`
+  font-size: 18px;
+  font-weight: bold;
+  color: ${theme.colors.text};
+  margin-bottom: 15px;
+  margin-top: 10px;
+`;
+
+const UserTypeContainer = styled.View`
+  flex-direction: row;
+  margin-bottom: 20px;
+  gap: 10px;
+`;
+
+const UserTypeButton = styled.TouchableOpacity<{ selected: boolean }>`
+  flex: 1;
+  padding: 12px;
+  align-items: center;
+  background-color: ${(props: { selected: boolean }) => props.selected ? theme.colors.primary : theme.colors.white};
+  border: 2px solid ${(props: { selected: boolean }) => props.selected ? theme.colors.primary : theme.colors.border};
+  border-radius: 8px;
+`;
+
+const UserTypeText = styled.Text<{ selected: boolean }>`
+  font-size: 16px;
+  font-weight: ${(props: { selected: boolean }) => props.selected ? 'bold' : 'normal'};
+  color: ${(props: { selected: boolean }) => props.selected ? 'white' : theme.colors.text};
 `;
 
 export default RegisterScreen;  

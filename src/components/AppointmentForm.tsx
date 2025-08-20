@@ -7,7 +7,8 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
    
    // Estados para dados da API  ← NOVO!
    const [doctors, setDoctors] = useState<User[]>([]);
-   const [specialties, setSpecialties] = useState<Specialty[]>([]);
+   const [specialties, setSpecialties] = useState<string[]>([]);
+   const [selectedSpecialty, setSelectedSpecialty] = useState<string>('');
    const [loading, setLoading] = useState(true);
 
    // Carrega dados ao montar o componente  ← NOVO!
@@ -15,32 +16,46 @@ const AppointmentForm: React.FC<AppointmentFormProps> = ({ onSubmit }) => {
       loadInitialData();
    }, []);
 
-   // Carrega médicos por especialidade  ← NOVO!
    useEffect(() => {
       if (selectedSpecialty) {
-         loadDoctorsBySpecialty(selectedSpecialty);
+        loadDoctorsBySpecialty(selectedSpecialty);
       } else {
-         loadAllDoctors();
+        loadAllDoctors();
       }
-   }, [selectedSpecialty]);
-
-   const loadInitialData = async () => {  // ← NOVO!
+    }, [selectedSpecialty]);
+    
+    const loadInitialData = async () => {
       try {
-         setLoading(true);
-         const [specialtiesData, doctorsData] = await Promise.all([
-            specialtiesApiService.getAllSpecialties(),
-            authApiService.getAllDoctors(),
-         ]);
-         
-         setSpecialties(specialtiesData);
-         setDoctors(doctorsData);
+        setLoading(true);
+        const [specialtiesData] = await Promise.all([
+          specialtiesApiService.getAllSpecialties(),
+        ]);
+        setSpecialties(specialtiesData);
+        await loadAllDoctors();
       } catch (error) {
-         console.error('Erro ao carregar dados:', error);
-         Alert.alert('Erro', 'Não foi possível carregar os dados. Tente novamente.');
+        console.error('Erro ao carregar dados iniciais:', error);
       } finally {
-         setLoading(false);
+        setLoading(false);
       }
-   };
+    };
+    
+    const loadAllDoctors = async () => {
+      try {
+        const doctorsData = await authApiService.getAllDoctors();
+        setDoctors(doctorsData);
+      } catch (error) {
+        console.error('Erro ao carregar médicos:', error);
+      }
+    };
+    
+    const loadDoctorsBySpecialty = async (specialty: string) => {
+      try {
+        const doctorsData = await authApiService.getDoctorsBySpecialty(specialty);
+        setDoctors(doctorsData);
+      } catch (error) {
+        console.error('Erro ao carregar médicos por especialidade:', error);
+      }
+    };
 
    // Interface com seleção de especialidade  ← NOVO!
    return (

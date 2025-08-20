@@ -7,6 +7,7 @@ import { ViewStyle } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../types/navigation';
+import { getSafeAreaTopMargin } from '../styles/globalStyles';
 
 type LoginScreenProps = {
   navigation: NativeStackNavigationProp<RootStackParamList, 'Login'>;
@@ -117,6 +118,7 @@ const styles = {
 const Container = styled.View`
   flex: 1;
   padding: 20px;
+  padding-top: ${getSafeAreaTopMargin() + 20}px;
   justify-content: center;
   background-color: ${theme.colors.background};
 `;

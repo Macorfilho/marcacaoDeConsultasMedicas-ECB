@@ -69,6 +69,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user));
       await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, response.token);
+      apiClient.setToken(response.token);
     } catch (error) {
       throw error;
     }
@@ -82,6 +83,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       
       await AsyncStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(response.user));
       await AsyncStorage.setItem(STORAGE_KEYS.TOKEN, response.token);
+      apiClient.setToken(response.token);
     } catch (error) {
       throw error;
     }
