@@ -1,30 +1,62 @@
 import React from 'react';
-import { RefreshControl } from 'react-native';
+import { FlatList, RefreshControl } from 'react-native';
 import { Button } from 'react-native-elements';
 import { FontAwesome } from '@expo/vector-icons';
-import Header from '../../../components/Header';
-import theme from '../../../styles/theme';
-import { useHome } from './hooks/useHome';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+
+// Componentes locais
+import Header from '../../components/Header';
 import AppointmentCard from './components/AppointmentCard';
-import {
-  Container,
-  Content,
-  AppointmentList,
-  EmptyText,
+import EmptyState from './components/EmptyState';
+
+// Hooks customizados
+import { useHomeScreen } from './hooks/useHomeScreen';
+
+// Estilos
+import { 
+  Container, 
+  Content, 
+  AppointmentList, 
+  TitleContainer, 
+  Title 
 } from './styles';
 
-const HomeScreen: React.FC = () => {
+// Tipos
+import { RootStackParamList } from '../../types/navigation';
+import { Appointment } from '../../types/appointments';
+import theme from '../../styles/theme';
+
+type HomeScreenProps = {
+  navigation: NativeStackNavigationProp<RootStackParamList, 'Home'>;
+};
+
+const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const {
     appointments,
+    doctors,
     refreshing,
     onRefresh,
-    getDoctorInfo,
-    navigateToCreateAppointment,
-  } = useHome();
+    getDoctorInfo
+  } = useHomeScreen();
+
+  const renderAppointment = ({ item }: { item: Appointment }) => (
+    <AppointmentCard 
+      appointment={item}
+      doctor={getDoctorInfo(item.doctorId)}
+    />
+  );
+
+  const handleCreateAppointment = () => {
+    navigation.navigate('CreateAppointment');
+  };
 
   return (
     <Container>
       <Header />
+      <TitleContainer>
+        <Title>Minhas Consultas</Title>
+      </TitleContainer>
+
       <Content>
         <Button
           title="Agendar Nova Consulta"
@@ -42,21 +74,17 @@ const HomeScreen: React.FC = () => {
             padding: 12,
             marginBottom: theme.spacing.medium
           }}
-          onPress={navigateToCreateAppointment}
+          onPress={handleCreateAppointment}
         />
 
         <AppointmentList
           data={appointments}
-          keyExtractor={(item: any) => item.id}
-          renderItem={({ item }: { item: any }) => (
-            <AppointmentCard item={item} doctor={getDoctorInfo(item.doctorId)} />
-          )}
+          keyExtractor={(item: Appointment) => item.id}
+          renderItem={renderAppointment}
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
-          ListEmptyComponent={
-            <EmptyText>Nenhuma consulta agendada</EmptyText>
-          }
+          ListEmptyComponent={<EmptyState />}
         />
       </Content>
     </Container>

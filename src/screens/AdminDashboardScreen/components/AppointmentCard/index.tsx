@@ -1,57 +1,108 @@
 import React from 'react';
-import { ListItem, Button } from 'react-native-elements';
-import { Text } from 'react-native';
-import { Appointment } from '../../../../types/appointments';
-import { getStatusText } from '../../utils/statusHelpers';
+import { Alert } from 'react-native';
+import { Appointment } from '../../hooks/useAdminDashboard';
+import { AppointmentStatus, getStatusText, canUpdateStatus } from '../../utils/statusHelpers';
 import {
-  AppointmentCardContainer,
+  Container,
+  Header,
+  DoctorInfo,
+  DoctorName,
+  Specialty,
+  DateTime,
   StatusBadge,
   StatusText,
-  ButtonContainer,
-  styles,
+  ActionContainer,
+  ActionButton,
+  ActionButtonText
 } from './styles';
+
+/**
+ * Componente para exibir informações de uma consulta
+ * 
+ * Este componente demonstra:
+ * - Componente especializado e reutilizável
+ * - Uso de utilitários para lógica de negócio
+ * - Interações do usuário com confirmação
+ * - Layout bem estruturado e responsivo
+ */
 
 interface AppointmentCardProps {
   appointment: Appointment;
-  onUpdateStatus: (id: string, status: 'confirmed' | 'cancelled') => void;
+  onStatusUpdate: (id: string, status: AppointmentStatus) => Promise<void>;
 }
 
-const AppointmentCard: React.FC<AppointmentCardProps> = ({ appointment, onUpdateStatus }) => {
+const AppointmentCard: React.FC<AppointmentCardProps> = ({
+  appointment,
+  onStatusUpdate
+}) => {
+  const handleStatusUpdate = (newStatus: AppointmentStatus) => {
+    const actionText = newStatus === 'confirmed' ? 'confirmar' : 'cancelar';
+    
+    Alert.alert(
+      'Confirmar Ação',
+      `Deseja realmente ${actionText} esta consulta?`,
+      [
+        { text: 'Cancelar', style: 'cancel' },
+        {
+          text: 'Confirmar',
+          onPress: async () => {
+            try {
+              await onStatusUpdate(appointment.id, newStatus);
+            } catch (error) {
+              Alert.alert('Erro', 'Não foi possível atualizar o status da consulta');
+            }
+          }
+        }
+      ]
+    );
+  };
+
+  const formatDate = (dateString: string): string => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('pt-BR', {
+      weekday: 'short',
+      day: '2-digit',
+      month: 'short',
+      year: 'numeric'
+    });
+  };
+
   return (
-    <AppointmentCardContainer>
-      <ListItem.Content>
-        <ListItem.Title style={styles.doctorName}>
-          {appointment.doctorName}
-        </ListItem.Title>
-        <ListItem.Subtitle style={styles.specialty}>
-          {appointment.specialty}
-        </ListItem.Subtitle>
-        <Text style={styles.dateTime}>
-          {appointment.date} às {appointment.time}
-        </Text>
+    <Container>
+      <Header>
+        <DoctorInfo>
+          <DoctorName>{appointment.doctorName}</DoctorName>
+          <Specialty>{appointment.specialty}</Specialty>
+          <DateTime>
+            {formatDate(appointment.date)} às {appointment.time}
+          </DateTime>
+        </DoctorInfo>
+        
         <StatusBadge status={appointment.status}>
           <StatusText status={appointment.status}>
             {getStatusText(appointment.status)}
           </StatusText>
         </StatusBadge>
-        {appointment.status === 'pending' && (
-          <ButtonContainer>
-            <Button
-              title="Confirmar"
-              onPress={() => onUpdateStatus(appointment.id, 'confirmed')}
-              containerStyle={styles.actionButton}
-              buttonStyle={styles.confirmButton}
-            />
-            <Button
-              title="Cancelar"
-              onPress={() => onUpdateStatus(appointment.id, 'cancelled')}
-              containerStyle={styles.actionButton}
-              buttonStyle={styles.cancelButton}
-            />
-          </ButtonContainer>
-        )}
-      </ListItem.Content>
-    </AppointmentCardContainer>
+      </Header>
+
+      {canUpdateStatus(appointment.status) && (
+        <ActionContainer>
+          <ActionButton
+            variant="confirm"
+            onPress={() => handleStatusUpdate('confirmed')}
+          >
+            <ActionButtonText>Confirmar</ActionButtonText>
+          </ActionButton>
+          
+          <ActionButton
+            variant="cancel"
+            onPress={() => handleStatusUpdate('cancelled')}
+          >
+            <ActionButtonText>Cancelar</ActionButtonText>
+          </ActionButton>
+        </ActionContainer>
+      )}
+    </Container>
   );
 };
 

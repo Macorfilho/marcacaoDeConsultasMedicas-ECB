@@ -1,5 +1,5 @@
 import styled from 'styled-components/native';
-import { FlatList, TouchableOpacity } from 'react-native';
+import { FlatList } from 'react-native';
 import theme from '../../styles/theme';
 
 export const Container = styled.View`
@@ -12,13 +12,18 @@ export const Content = styled.View`
   padding: ${theme.spacing.medium}px;
 `;
 
-export const AppointmentList = styled(FlatList as new () => FlatList<any>)`
+export const AppointmentList = styled(FlatList)`
   flex: 1;
 `;
 
-export const EmptyText = styled.Text`
-  text-align: center;
+export const TitleContainer = styled.View`
+  padding: 16px;
+  background-color: ${theme.colors.background};
+`;
+
+export const Title = styled.Text`
+  font-size: 24px;
+  font-weight: bold;
   color: ${theme.colors.text};
-  opacity: 0.6;
-  margin-top: ${theme.spacing.large}px;
+  text-align: center;
 `;
