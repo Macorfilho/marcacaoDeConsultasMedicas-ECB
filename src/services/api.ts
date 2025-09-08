@@ -10,7 +10,7 @@ export const API_ENDPOINTS = {
   // Autenticação
   LOGIN: '/usuarios/login',
   REGISTER: '/usuarios',
-  CURRENT_USER: '/usuarios/me',
+  CURRENT_USER: '/usuarios/usuario-autenticado',
   
   // Usuários
   USERS: '/usuarios',

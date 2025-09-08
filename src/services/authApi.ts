@@ -87,6 +87,14 @@ export const authApiService = {
       return this.mapApiUserToUser(currentUser);
     } catch (error) {
       console.error('Erro ao buscar usuário atual:', error);
+      
+      // Verifica se é um erro de autenticação (401/403)
+      if (error instanceof Error && error.message.includes('403')) {
+        throw new Error('Token de autenticação inválido ou expirado');
+      } else if (error instanceof Error && error.message.includes('401')) {
+        throw new Error('Não autorizado. Faça login novamente');
+      }
+      
       throw new Error('Erro ao carregar dados do usuário');
     }
   },
